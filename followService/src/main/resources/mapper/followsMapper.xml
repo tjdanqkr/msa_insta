@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.followService.follow.repository.FollowMapper">
+    <select id="getFollowing" resultType="FollowUserDto" >
+        SELECT
+            u.id, u.name, u.img
+        FROM
+            follows as f
+        INNER JOIN users as u ON f.following = u.id
+        WHERE follower = #{followerId}
+    </select>
+    <select id="getFollower" resultType="FollowUserDto" parameterType="Integer" >
+        SELECT
+            u.id, u.name, u.img
+        FROM
+            follows as f
+        INNER JOIN users as u ON f.follower = u.id
+        WHERE following = #{followingId}
+    </select>
+    <select id="getFollowerByOne" resultType="FollowUserDto" parameterType="FollowDto" >
+        SELECT
+        u.id, u.name, u.img
+        FROM
+        follows as f
+        INNER JOIN users as u ON f.follower = u.id
+        WHERE following = #{following} and follower = #{follower}
+    </select>
+    <insert id="insertFollow" parameterType="FollowDto" useGeneratedKeys="true"
+            keyProperty="id" keyColumn="id">
+        INSERT INTO
+            follows
+            (following, follower)
+        VALUE
+            (#{following}, #{follower})
+    </insert>
+
+    <delete id="deleteFollow" parameterType="FollowDto">
+        DELETE FROM follows
+        WHERE follower = #{follower} and following = #{following}
+    </delete>
+
+
+</mapper>

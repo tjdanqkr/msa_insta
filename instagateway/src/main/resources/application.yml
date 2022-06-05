@@ -1,0 +1,94 @@
+server:
+  port: 8000
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://127.0.0.1:8761/eureka
+spring:
+  application:
+    name: instagateway-service
+  cloud:
+    gateway:
+      default-filters:
+        - name: GlobalFilter
+          args:
+            baseMessage: GlobalFilterBaseMessage
+            preLogger: true
+            postLogger: true
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedMethods:
+              - GET
+              - POST
+              - DELETE
+              - PUT
+            allowedOrigins: "http://localhost:3000"
+            allowedHeaders: "*"
+      routes:
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/user/actuator/**
+            - Method=GET,POST
+          filters:
+            - RewritePath=/user/(?<segment>.*), /$\{segment}
+        - id : user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/user/**
+
+
+        - id: post-service
+          uri: lb://POST-SERVICE
+          predicates:
+            - Path=/post/actuator/**
+            - Method=GET,POST
+          filters:
+            - CustomFilter
+            - RewritePath=/post/(?<segment>.*), /$\{segment}
+        - id: post-service
+          uri: lb://POST-SERVICE
+          predicates:
+            - Path=/post/**
+          filters:
+            - AuthFilter
+
+        - id: follow-service
+          uri: lb://FOLLOW-SERVICE
+          predicates:
+            - Path=/follow/actuator/**
+            - Method=GET,POST
+          filters:
+            - CustomFilter
+            - RewritePath=/follow/(?<segment>.*), /$\{segment}
+        - id: follow-service
+          uri: lb://FOLLOW-SERVICE
+          predicates:
+            - Path=/follow/**
+          filters:
+            - AuthFilter
+
+        - id: file-service
+          uri: lb://FILE-SERVICE
+          predicates:
+            - Path=/upload
+            - Method=POST,OPTIONS
+          filters:
+            - AuthFilter
+        - id: file-service
+          uri: lb://FILE-SERVICE
+          predicates:
+            - Path=/img/**
+            - Method=GET
+
+
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: refresh,health,beans

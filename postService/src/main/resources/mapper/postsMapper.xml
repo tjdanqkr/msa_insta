@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.postService.post.repository.PostMapper">
+    <select id="getPostAll" resultType="PostUserDto" >
+        SELECT
+            p.id, p.userId, u.name userName, u.img userImg,
+            p.img, p.content
+        FROM
+            posts p
+        INNER JOIN
+            users u
+        ON
+            p.userId = u.id
+    </select>
+    <select id="getPostById" resultType="PostUserDto" parameterType="Integer" >
+        SELECT
+            p.id, p.userId, u.name userName, u.img userImg,
+            p.img, p.content
+        FROM
+            posts p
+        INNER JOIN
+            users u
+        ON
+            p.userId = u.id
+        WHERE
+            p.id = #{id}
+    </select>
+    <select id="getPostByUserId" resultType="PostUserDto" parameterType="Integer" >
+        SELECT
+            p.id, p.userId, u.name userName, u.img userImg,
+            p.img, p.content
+        FROM
+            posts p
+        INNER JOIN
+            users u
+        ON
+            p.userId = u.id
+        WHERE
+            p.userId = #{id}
+    </select>
+    <select id="getPostByNotUserId" resultType="PostUserDto" parameterType="Integer" >
+        SELECT
+            p.id, p.userId, u.name userName, u.img userImg,
+            p.img, p.content
+        FROM
+            posts p
+        INNER JOIN
+            users u
+        ON
+            p.userId = u.id
+        WHERE
+            p.userId != #{id}
+    </select>
+    <select id="getPostByMyFollowing" resultType="PostUserDto" parameterType="Integer" >
+        SELECT
+            p.id, p.userId, u.name userName, u.img userImg,
+            p.img, p.content
+        FROM
+            posts p
+        INNER JOIN
+            users u
+        ON
+            p.userId = u.id
+        INNER JOIN
+            follows f
+        ON
+            f.follower = p.userId and f.following = #{id}
+        WHERE
+            p.userId != #{id}
+    </select>
+    <select id="getPostByKey" resultType="PostUserDto" parameterType="String" >
+        SELECT
+            p.id, p.userId, u.name userName, u.img userImg,
+            p.img, p.content
+        FROM
+            posts p
+        INNER JOIN
+            users u
+        ON
+            p.userId = u.id
+        where
+            u.name like concat('%',#{key}, '%')
+        or p.content like concat('%',#{key}, '%')
+    </select>
+    <insert id="insertPost" parameterType="PostDto" useGeneratedKeys="true"
+            keyProperty="id" keyColumn="id">
+        INSERT INTO
+            posts
+            (userId, img, content)
+        VALUE
+            (#{userId}, #{img}, #{content})
+    </insert>
+    <update id="updatePost" parameterType="PostDto" >
+        UPDATE posts
+        <set>
+            <if test="content != null">
+                content = #{content},
+            </if>
+            <if test="img != null">
+                img = #{img},
+            </if>
+        </set>
+        WHERE id = #{id}
+            and userId = #{userId}
+    </update>
+    <delete id="deletePost" parameterType="PostDto">
+        DELETE FROM posts
+        WHERE id = #{id}
+            and userId = #{userId}
+    </delete>
+
+</mapper>
